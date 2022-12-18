@@ -32,9 +32,9 @@ def processing_data_from_fields():
     try:
         version = getting_url(url)
         url = clearing_url(url)
-        database.enter_data_in_db(name, description, url[2], '1', '1')
+        database.enter_data_in_db(name, description, url[2], '1', '4')
     except Exception:
-        version = "Нет данных"
+        version = 'Нет данных'
     return jsonify(version)
 
 
@@ -55,8 +55,8 @@ def delete_server():
 
 # обработка url
 def getting_url(url):
-    info = requests.get(f'{url}').json()
-    version = info['data']['version']
+    prometheus_info = requests.get(f'{url}').json()
+    version = prometheus_info['data']['version']
     return version
 
 

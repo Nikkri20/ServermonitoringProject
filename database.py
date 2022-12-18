@@ -35,7 +35,6 @@ def data_packaging():
 def deleting_data(name_of_server):
     sqlite_connection = sqlite3.connect('serverInformation.db')
     cur = sqlite_connection.cursor()
-
     sql_delete_query = f"""DELETE from serverInformation where name = {name_of_server}"""
     cur.execute(sql_delete_query)
     sqlite_connection.commit()
