@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import requests
+import database
 
 app = Flask(__name__)
 
@@ -8,6 +9,13 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
 def index():
     return render_template('index.html')
+
+
+# получение списка серверов из бд
+@app.route('/servers_list', methods=['GET'])
+def getting_server_data():
+    data_from_database = database.data_packaging()
+    return jsonify(data_from_database)
 
 
 # загрузка страницы add_server
@@ -21,28 +29,46 @@ def add_server():
 def problems_page():
     return render_template('problems-page.html')
 
+# загрузка страницы objects-page
+@app.route('/objects_page_html', methods=['GET', 'POST', 'DELETE'])
+def objects_page():
+    return render_template('objects-page.html')
 
 # обработка информации с полей
 @app.route('/handle_data', methods=['POST'])
 def processing_data_from_fields():
+    name = request.form['name']
+    description = request.form['description']
     url = request.form['url']
-    version = getting_url(url)
-    return jsonify("hello")
+    try:
+        version = getting_url(url)
+        url = clearing_url(url)
+        database.enter_data_in_db(name, description, url)
+    except Exception:
+        version = 'Нет данных'
+    return jsonify(version)
+
+
+# удаление сервера из списка серверов
+@app.route('/delete_data', methods=['POST'])
+def delete_server():
+    name = request.data
+    database.deleting_data(name.decode('utf-8'))
+    return name
 
 
 # обработка url
 def getting_url(url):
-    if url[-1] != "/":
-        url = url.split("/", 3)[0] + "//" + url.split("/", 3)[2] + "/metrics"
-    else:
-        url = url + "/metrics"
-    info = requests.get(f'{url}').content.decode("utf-8").split(sep="\n")
-    version = 'NotInfoFromPython'
-    for i, m in enumerate(info, 1):
-        if i == 146:
-            version = m
-    return version  # jsonfly для возвращении информации в js
+    info = requests.get(f'{url}').json()
+    version = info['data']['version']
+    return version
 
 
-if __name__ == "__main__":
+# убирает все лишние символы в url для более корректного вывода в списке подключенных серверов
+def clearing_url(url):
+    url = url.split('/')[2]
+    return url
+
+
+if __name__ == '__main__':
     app.run(debug=True)
