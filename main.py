@@ -11,13 +11,6 @@ def index():
     return render_template('index.html')
 
 
-# получение списка серверов из бд
-@app.route('/servers_list', methods=['GET'])
-def getting_server_data():
-    data_from_database = database.data_packaging()
-    return jsonify(data_from_database)
-
-
 # загрузка страницы add_server
 @app.route('/add_server', methods=['GET', 'POST', 'DELETE'])
 def add_server():
@@ -39,10 +32,17 @@ def processing_data_from_fields():
     try:
         version = getting_url(url)
         url = clearing_url(url)
-        database.enter_data_in_db(name, description, url)
+        database.enter_data_in_db(name, description, url[2], '1', '1')
     except Exception:
-        version = 'Нет данных'
+        version = "Нет данных"
     return jsonify(version)
+
+
+# получение списка серверов из бд
+@app.route('/servers_list', methods=['GET'])
+def getting_server_data():
+    data_from_database = database.data_packaging()
+    return jsonify(data_from_database)
 
 
 # удаление сервера из списка серверов
@@ -62,7 +62,7 @@ def getting_url(url):
 
 # убирает все лишние символы в url для более корректного вывода в списке подключенных серверов
 def clearing_url(url):
-    url = url.split('/')[2]
+    url = url.split('/')
     return url
 
 

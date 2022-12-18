@@ -8,15 +8,14 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS serverinformation(
    description TEXT,
    url TEXT,
    problems TEXT,
-   objects TEXT,
-   date TEXT);
+   objects TEXT);
 """)
 connection.commit()
 
 
-def enter_data_in_db(name, description, url, problems='0', objects='0', date='20191102-16:19:59'):
-    cursor.execute(f"""REPLACE INTO serverinformation(name, description, url, problems, objects, date) 
-        VALUES('{name}', '{description}', '{url}', '{problems}', '{objects}', '{date}');""")
+def enter_data_in_db(name, description, url, problems, objects):
+    cursor.execute(f"""REPLACE INTO serverinformation(name, description, url, problems, objects) 
+        VALUES('{name}', '{description}', '{url}', '{problems}', '{objects}');""")
     connection.commit()
 
 
@@ -28,7 +27,8 @@ def data_packaging():
     number_of_server = 0
     for row in records:
         number_of_server += 1
-        data_from_database[f'{number_of_server}'] = {'name': row[0], 'description': row[1], 'url': row[2], 'problems' : row[3], 'objects' : row[4]}
+        data_from_database[f'{number_of_server}'] = {'name': row[0], 'description': row[1], 'url': row[2],
+                                                     'problems': row[3], 'objects': row[4]}
     return data_from_database
 
 
